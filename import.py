@@ -1,32 +1,29 @@
 import os
-import subprocess
-
+import shutil
 from pytube import Playlist, YouTube
 
 def run(pl):
-    # get linked list of links in the playlist
     links = pl.video_urls
 
-    # download each item in the list
-    for l in links:
-       # url input from user
+    for index, l in enumerate(links):
         yt = YouTube(l)
 
-        # extract only audio
-        video = yt.streams.filter(only_audio=True).first()
+        try:
+            video = yt.streams.filter(only_audio=True).first()
+            out_file = video.download(output_path='C:\\Users\\Dell\\Desktop\\mmm\\')
+            base, ext = os.path.splitext(out_file)
+            new_file = base + '.mp3'
+            try:
+                shutil.move(out_file, new_file)
+                print(f'[{index+1}/{len(links)}] {yt.title} has been successfully downloaded and converted.')
+            except Exception as e:
+                print(f"An error occurred while overwriting {new_file}: {e}")
 
-        # download the file
-        out_file = video.download(output_path='C:\\Users\\Dell\\Desktop\\mmm\\')
+        except:
+            print(f'[{index}/{len(links)}] Can not download {yt.title}.')
 
-        # save the file
-        base, ext = os.path.splitext(out_file)
-        new_file = base + '.mp3'
-        os.rename(out_file, new_file)
-
-        # result of success
-        print(yt.title + " has been successfully downloaded.")
 
 if __name__ == "__main__":
-    url = 'https://www.youtube.com/playlist?list=PLVdrvbY9AVQrd4M9f9_5FVkfV_yHY8ALz'
+    url = 'https://www.youtube.com/playlist?list=PLagYdGDvVgEIpp16f01N40UKCBzhGln1-'
     pl = Playlist(url)
     run(pl)
